@@ -1,15 +1,22 @@
 {
-  "name": "budget-tracker-server",
-  "module": "index.ts",
-  "type": "module",
-  "devDependencies": {
-    "@biomejs/biome": "1.7.2",
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "hono": "^4.3.0"
-  }
+	"name": "budget-tracker-server",
+	"module": "index.ts",
+	"type": "module",
+	"scripts": {
+		"db:generate": "drizzle-kit generate:pg --config=drizzle.config.ts"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.7.2",
+		"@types/bun": "latest",
+		"@types/pg": "^8.11.5",
+		"drizzle-kit": "^0.20.17"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"drizzle-orm": "^0.30.10",
+		"hono": "^4.3.0",
+		"pg": "^8.11.5"
+	}
 }
