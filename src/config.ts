@@ -1,7 +1,6 @@
 export const _Config = {
-	A: import.meta.env.A,
-	B: import.meta.env.B,
-	C: import.meta.env.C,
+	port: import.meta.env.PORT,
+	hostname: import.meta.env.HOSTNAME,
 };
 
 export const Config = {
