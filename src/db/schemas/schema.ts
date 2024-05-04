@@ -43,3 +43,20 @@ export const transaction = pgTable(
 		};
 	},
 );
+
+export const monthHistory = pgTable("monthHistory", {
+	userId: text("userId").notNull().primaryKey(),
+	day: integer("day").notNull().primaryKey(),
+	month: integer("month").notNull().primaryKey(),
+	year: integer("year").notNull().primaryKey(),
+	income: numeric("income", { precision: 12, scale: 2 }).notNull(),
+	expense: numeric("expense", { precision: 12, scale: 2 }).notNull(),
+});
+
+export const yearHistory = pgTable("yearHistory", {
+	userId: text("userId").notNull().primaryKey(),
+	month: integer("month").notNull().primaryKey(),
+	year: integer("year").notNull().primaryKey(),
+	income: numeric("income", { precision: 12, scale: 2 }).notNull(),
+	expense: numeric("expense", { precision: 12, scale: 2 }).notNull(),
+});
