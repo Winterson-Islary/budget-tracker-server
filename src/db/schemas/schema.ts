@@ -1,4 +1,3 @@
-import { sql } from "drizzle-orm";
 import {
 	index,
 	integer,
@@ -8,7 +7,7 @@ import {
 	text,
 	time,
 	timestamp,
-	uuid,
+	primaryKey,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("userSettings", {
@@ -44,19 +43,44 @@ export const transaction = pgTable(
 	},
 );
 
-export const monthHistory = pgTable("monthHistory", {
-	userId: text("userId").notNull().primaryKey(),
-	day: integer("day").notNull().primaryKey(),
-	month: integer("month").notNull().primaryKey(),
-	year: integer("year").notNull().primaryKey(),
-	income: numeric("income", { precision: 12, scale: 2 }).notNull(),
-	expense: numeric("expense", { precision: 12, scale: 2 }).notNull(),
-});
+export const monthHistory = pgTable(
+	"monthHistory",
+	{
+		userId: text("userId").notNull(),
+		day: integer("day").notNull(),
+		month: integer("month").notNull(),
+		year: integer("year").notNull(),
+		income: numeric("income", { precision: 12, scale: 2 }).notNull(),
+		expense: numeric("expense", { precision: 12, scale: 2 }).notNull(),
+	},
+	(monthHistory) => {
+		return {
+			pk: primaryKey({
+				columns: [
+					monthHistory.userId,
+					monthHistory.day,
+					monthHistory.month,
+					monthHistory.year,
+				],
+			}),
+		};
+	},
+);
 
-export const yearHistory = pgTable("yearHistory", {
-	userId: text("userId").notNull().primaryKey(),
-	month: integer("month").notNull().primaryKey(),
-	year: integer("year").notNull().primaryKey(),
-	income: numeric("income", { precision: 12, scale: 2 }).notNull(),
-	expense: numeric("expense", { precision: 12, scale: 2 }).notNull(),
-});
+export const yearHistory = pgTable(
+	"yearHistory",
+	{
+		userId: text("userId").notNull(),
+		month: integer("month").notNull(),
+		year: integer("year").notNull(),
+		income: numeric("income", { precision: 12, scale: 2 }).notNull(),
+		expense: numeric("expense", { precision: 12, scale: 2 }).notNull(),
+	},
+	(yearHistory) => {
+		return {
+			pk: primaryKey({
+				columns: [yearHistory.month, yearHistory.year, yearHistory.userId],
+			}),
+		};
+	},
+);
