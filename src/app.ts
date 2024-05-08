@@ -1,6 +1,15 @@
 import { Hono } from "hono";
-const app = new Hono();
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { userSettings } from "./routes/userSettings";
+import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
 
-app.get("/", (c) => c.text("Hono!"));
+const App = new Hono();
 
-export default app;
+App.use("*", logger());
+App.use("*", cors());
+App.use("*", clerkMiddleware());
+App.get("/ping", (ctx) => ctx.text("Pong!"));
+App.route("/api/settings", userSettings);
+
+export default App;
