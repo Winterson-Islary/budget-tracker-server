@@ -10,7 +10,7 @@ import {
 	primaryKey,
 } from "drizzle-orm/pg-core";
 
-export const user = pgTable("userSettings", {
+export const userSettings = pgTable("userSettings", {
 	userId: text("userId").primaryKey(),
 	currency: text("currency"),
 });
