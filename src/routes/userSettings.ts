@@ -7,6 +7,8 @@ const UserSettingHardCoded = {
 		currency: "USD",
 	},
 };
+let Currency: string | undefined = "USD";
+
 export const userSettings = new Hono()
 	.get("/", async (ctx) => {
 		const auth = getAuth(ctx);
@@ -17,11 +19,15 @@ export const userSettings = new Hono()
 		}
 		return ctx.json({
 			message: "You are logged in.",
+			currency: Currency,
 			userId: auth.userId,
 		});
 	})
-	.post("/", (ctx) => {
-		return ctx.json({});
+	.post("/", async (ctx) => {
+		const body = await ctx.req.json();
+		console.log(body);
+		Currency = body.currency;
+		return ctx.json({ message: "Successfully Completed Update" });
 	});
 // .delete
 // .put
