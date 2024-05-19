@@ -6,6 +6,7 @@ export const _Config = {
 	db_password: process.env.DB_PASSWORD,
 	db_name: process.env.DB_NAME,
 	db_url: process.env.DB_URL,
+	clerk_pem: process.env.CLERK_PEM_PUBLIC_KEY,
 };
 
 export const userConfig = {
