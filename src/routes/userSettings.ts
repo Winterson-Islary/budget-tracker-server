@@ -10,26 +10,30 @@ import { verifyJWT } from "../utils/verifySession.ts";
 export const userSettings = new Hono()
 	.get("/", async (ctx) => {
 		const sessionToken = getCookie(ctx, "__session");
-		console.log(sessionToken);
+		// console.log(sessionToken);
 		const verifiedSessionToken = verifyJWT(sessionToken);
 		// console.log(verifiedSessionToken);
 		const auth = await getAuth(ctx);
 
-		if (!auth?.userId && !verifiedSessionToken) {
+		if (!auth?.userId && !verifiedSessionToken.verified) {
 			return ctx.json({ message: "Not logged in." });
 		}
-		if (auth?.userId || verifiedSessionToken) {
-			const userID = auth?.userId || "no-user";
+
+		if (auth?.userId || verifiedSessionToken.verified) {
+			const userID =
+				auth?.userId ||
+				verifiedSessionToken.object?.userId ||
+				"user-does-not-exist";
 			const settings = await db
 				.select()
 				.from(userSettingsTable)
 				.where(eq(userSettingsTable.userId, userID));
-			console.log(settings[0]);
+			// console.log(settings[0]);
 
 			return ctx.json({
 				message: "You are logged in.",
 				settings: settings[0],
-				userId: auth?.userId,
+				userId: userID,
 			});
 		}
 	})
@@ -38,26 +42,32 @@ export const userSettings = new Hono()
 		const verifiedSessionToken = verifyJWT(sessionToken);
 		const auth = getAuth(ctx);
 
-		if (!auth?.userId && !verifiedSessionToken) {
+		if (!auth?.userId && !verifiedSessionToken.verified) {
 			return ctx.json({
 				message: "You are not logged in.",
 			});
 		}
-		const userID = auth?.userId || "no-user";
-		const body = await ctx.req.json();
-		const entry_exist = await db.query.userSettings.findFirst({
-			where: eq(userSettingsTable.userId, userID),
-		});
+		if (auth?.userId || verifiedSessionToken.verified) {
+			const userID =
+				auth?.userId ||
+				verifiedSessionToken.object?.userId ||
+				"user-does-not-exist";
 
-		if (entry_exist) {
+			const body = await ctx.req.json();
+			const entry_exist = await db.query.userSettings.findFirst({
+				where: eq(userSettingsTable.userId, userID),
+			});
+
+			if (entry_exist) {
+				await db
+					.update(userSettingsTable)
+					.set({ currency: body.currency })
+					.where(eq(userSettingsTable.userId, userID));
+				return ctx.json({ message: "Updated Currency" });
+			}
 			await db
-				.update(userSettingsTable)
-				.set({ currency: body.currency })
-				.where(eq(userSettingsTable.userId, userID));
-			return ctx.json({ message: "Updated Currency" });
+				.insert(userSettingsTable)
+				.values({ userId: userID, currency: body.currency });
+			return ctx.json({ message: "Successfully Completed Setting Currency" });
 		}
-		await db
-			.insert(userSettingsTable)
-			.values({ userId: userID, currency: body.currency });
-		return ctx.json({ message: "Successfully Completed Setting Currency" });
 	});

@@ -9,18 +9,21 @@ type Token = {
 	nbf: number;
 	sid: string;
 	sub: string;
+	userId: string;
 };
 const publicKey = userConfig.Get("clerk_pem");
-export function verifyJWT(token: string | undefined): boolean {
+export function verifyJWT(token: string | undefined): {
+	verified: boolean;
+	object?: Token;
+} {
 	if (token === undefined) {
-		return false;
+		return { verified: false };
 	}
 	const decoded = jwt.verify(token, publicKey, {
 		algorithms: ["RS256"],
 	}) as Token;
 	if (decoded.azp === "http://localhost:5173") {
-		return true;
+		return { verified: true, object: decoded };
 	}
-
-	return false;
+	return { verified: false };
 }
