@@ -1,9 +1,9 @@
-import { Hono } from "hono";
 import { getAuth } from "@hono/clerk-auth";
+import { eq } from "drizzle-orm";
+import { Hono } from "hono";
+import { getCookie, getSignedCookie } from "hono/cookie";
 import { db } from "../db/db.ts";
 import { userSettings as userSettingsTable } from "../db/schemas/schema.ts";
-import { eq } from "drizzle-orm";
-import { getCookie, getSignedCookie } from "hono/cookie";
 import { userConfig } from "../utils/config.ts";
 import { verifyJWT } from "../utils/verifySession.ts";
 

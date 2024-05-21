@@ -3,11 +3,11 @@ import {
 	integer,
 	numeric,
 	pgTable,
+	primaryKey,
 	serial,
 	text,
 	time,
 	timestamp,
-	primaryKey,
 } from "drizzle-orm/pg-core";
 
 export const userSettings = pgTable("userSettings", {
