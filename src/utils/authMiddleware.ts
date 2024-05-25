@@ -1,6 +1,6 @@
-import { createMiddleware } from "hono/factory";
 import { getAuth } from "@hono/clerk-auth";
 import { getCookie } from "hono/cookie";
+import { createMiddleware } from "hono/factory";
 import { verifyJWT } from "../utils/verifySession.ts";
 
 type Env = {

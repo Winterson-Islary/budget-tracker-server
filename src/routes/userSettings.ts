@@ -4,8 +4,8 @@ import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { db } from "../db/db.ts";
 import { userSettings as userSettingsTable } from "../db/schemas/schema.ts";
-import { verifyJWT } from "../utils/verifySession.ts";
 import { authMiddleware } from "../utils/authMiddleware.ts";
+import { verifyJWT } from "../utils/verifySession.ts";
 
 export const userSettings = new Hono()
 	.get("/", authMiddleware, async (ctx) => {
@@ -30,15 +30,6 @@ export const userSettings = new Hono()
 	.post("/", authMiddleware, async (ctx) => {
 		const verifiedSessionToken = ctx.var.verifiedSessionToken;
 		const userId = ctx.var.userId;
-
-		if (!userId && !verifiedSessionToken.verified) {
-			return ctx.json(
-				{
-					error: "not logged in.",
-				},
-				401,
-			);
-		}
 		if (userId || verifiedSessionToken.verified) {
 			const userID =
 				userId || verifiedSessionToken.object?.userId || "user-does-not-exist";

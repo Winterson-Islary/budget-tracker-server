@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { db } from "../db/db.ts";
 import { z } from "zod";
+import { db } from "../db/db.ts";
 import { authMiddleware } from "../utils/authMiddleware.ts";
 
 export const categories = new Hono().get("/", authMiddleware, async (ctx) => {
