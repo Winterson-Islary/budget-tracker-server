@@ -1,29 +1,19 @@
 import { getAuth } from "@hono/clerk-auth";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { getCookie, getSignedCookie } from "hono/cookie";
+import { getCookie } from "hono/cookie";
 import { db } from "../db/db.ts";
 import { userSettings as userSettingsTable } from "../db/schemas/schema.ts";
-import { userConfig } from "../utils/config.ts";
 import { verifyJWT } from "../utils/verifySession.ts";
+import { authMiddleware } from "../utils/authMiddleware.ts";
 
 export const userSettings = new Hono()
-	.get("/", async (ctx) => {
-		const sessionToken = getCookie(ctx, "__session");
-		// console.log(sessionToken);
-		const verifiedSessionToken = verifyJWT(sessionToken);
-		// console.log(verifiedSessionToken);
-		const auth = await getAuth(ctx);
-
-		if (!auth?.userId && !verifiedSessionToken.verified) {
-			return ctx.json({ message: "Not logged in." });
-		}
-
-		if (auth?.userId || verifiedSessionToken.verified) {
+	.get("/", authMiddleware, async (ctx) => {
+		const userId = ctx.var.userId;
+		const verifiedSessionToken = ctx.var.verifiedSessionToken;
+		if (userId || verifiedSessionToken.verified) {
 			const userID =
-				auth?.userId ||
-				verifiedSessionToken.object?.userId ||
-				"user-does-not-exist";
+				userId || verifiedSessionToken.object?.userId || "user-does-not-exist";
 			const settings = await db
 				.select()
 				.from(userSettingsTable)
@@ -37,21 +27,21 @@ export const userSettings = new Hono()
 			});
 		}
 	})
-	.post("/", async (ctx) => {
-		const sessionToken = getCookie(ctx, "__session");
-		const verifiedSessionToken = verifyJWT(sessionToken);
-		const auth = getAuth(ctx);
+	.post("/", authMiddleware, async (ctx) => {
+		const verifiedSessionToken = ctx.var.verifiedSessionToken;
+		const userId = ctx.var.userId;
 
-		if (!auth?.userId && !verifiedSessionToken.verified) {
-			return ctx.json({
-				message: "You are not logged in.",
-			});
+		if (!userId && !verifiedSessionToken.verified) {
+			return ctx.json(
+				{
+					error: "not logged in.",
+				},
+				401,
+			);
 		}
-		if (auth?.userId || verifiedSessionToken.verified) {
+		if (userId || verifiedSessionToken.verified) {
 			const userID =
-				auth?.userId ||
-				verifiedSessionToken.object?.userId ||
-				"user-does-not-exist";
+				userId || verifiedSessionToken.object?.userId || "user-does-not-exist";
 
 			const body = await ctx.req.json();
 			const entry_exist = await db.query.userSettings.findFirst({
