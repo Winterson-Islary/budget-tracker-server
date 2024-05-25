@@ -1,9 +1,9 @@
-import { clerkMiddleware, type getAuth } from "@hono/clerk-auth";
+import { clerkMiddleware } from "@hono/clerk-auth";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { categories } from "./routes/categories";
 import { userSettings } from "./routes/userSettings";
-import { authMiddleware } from "./utils/authMiddleware";
 
 const App = new Hono();
 
@@ -18,5 +18,6 @@ App.use(
 App.use("*", clerkMiddleware());
 App.get("/ping", (ctx) => ctx.text("Pong!"));
 App.route("/api/settings", userSettings);
+App.route("/api/categories", categories);
 
 export default App;
