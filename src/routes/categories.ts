@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, ilike } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 import { db } from "../db/db.ts";
@@ -16,13 +16,17 @@ export const categories = new Hono().get("/", authMiddleware, async (ctx) => {
 	if (!validateUserQuery.success) {
 		return ctx.json({ error: validateUserQuery.error }, 400);
 	}
-	// const type = validateUserQuery.data;
+	const type = validateUserQuery.data;
+	console.log(type);
 	const userID =
 		userId || verifiedSessionToken.object?.userId || "user-does-not-exist";
 	const dbQueryResult = await db.query.category.findMany({
-		where: eq(category.userId, userID),
+		where: and(
+			eq(category.userId, userID),
+			type ? ilike(category.type, type) : undefined,
+		),
 		orderBy: [asc(category.name)],
 	});
-
-	return ctx.json({ category: dbQueryResult }, 200);
+	console.log(dbQueryResult);
+	return ctx.json({ category: dbQueryResult[0] }, 200);
 });
