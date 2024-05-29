@@ -13,15 +13,24 @@ export const userSettings = new Hono()
 		const verifiedSessionToken = ctx.var.verifiedSessionToken;
 		const userID =
 			userId || verifiedSessionToken.object?.userId || "user-does-not-exist";
+		const entry_exist = await db.query.userSettings.findFirst({
+			where: eq(userSettingsTable.userId, userID),
+		});
+		if (!entry_exist && userID !== "user-does-not-exist") {
+			return ctx.json({ settings: { userId: "", currency: "" } }, 200);
+		}
 		const settings = await db
 			.select()
 			.from(userSettingsTable)
 			.where(eq(userSettingsTable.userId, userID));
 		// console.log(settings[0]);
 
-		return ctx.json({
-			settings: settings[0],
-		});
+		return ctx.json(
+			{
+				settings: settings[0],
+			},
+			200,
+		);
 	})
 	.post("/", authMiddleware, async (ctx) => {
 		const verifiedSessionToken = ctx.var.verifiedSessionToken;
@@ -39,13 +48,13 @@ export const userSettings = new Hono()
 				.update(userSettingsTable)
 				.set({ currency: body.currency })
 				.where(eq(userSettingsTable.userId, userID));
-			return ctx.json({ message: "Updated Currency" }, 201);
+			return ctx.json({ message: "updated currency" }, 201);
 		}
 		await db
 			.insert(userSettingsTable)
 			.values({ userId: userID, currency: body.currency });
 		return ctx.json(
-			{ message: "Successfully Completed Setting Currency" },
+			{ message: "successfully completed setting currency" },
 			201,
 		);
 	});
