@@ -17,8 +17,8 @@ export const userSettings = pgTable("userSettings", {
 
 export const category = pgTable("category", {
 	createdAt: timestamp("createdAt").defaultNow(),
-	name: text("name").unique(),
-	userId: text("userId").unique(),
+	name: text("name").primaryKey(),
+	userId: text("userId"),
 	icon: text("icon"),
 	type: text("type").default("income"),
 });
