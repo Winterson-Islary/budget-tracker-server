@@ -51,7 +51,7 @@ export const categories = new Hono()
 				type: type,
 				userId: userID,
 			});
-			return ctx.json({ message: "successfully created category" }, 201);
+			return ctx.json({ name: name, icon: icon }, 201);
 		} catch (err) {
 			console.log(err);
 			return ctx.json({ message: err }, 400);
