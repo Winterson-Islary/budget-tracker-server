@@ -33,6 +33,7 @@ export const transaction = pgTable(
 		description: text("description"),
 		date: time("date"),
 		userId: text("userId").notNull(),
+		type: text("type"),
 		category: text("category"),
 		categoryIcon: text("categoryIcon"),
 	},
