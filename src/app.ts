@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { categories } from "./routes/categories";
 import { userSettings } from "./routes/userSettings";
+import { transactions } from "./routes/transactions";
 
 const App = new Hono();
 
@@ -19,5 +20,6 @@ App.use("*", clerkMiddleware());
 App.get("/ping", (ctx) => ctx.text("Pong!"));
 App.route("/api/settings", userSettings);
 App.route("/api/categories", categories);
+App.route("/api/transactions", transactions);
 
 export default App;
