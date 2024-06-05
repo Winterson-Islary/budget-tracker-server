@@ -17,3 +17,11 @@ export const CreateTransactionSchema = z.object({
 export type CreateTransactionSchemaType = z.infer<
 	typeof CreateTransactionSchema
 >;
+
+export type TransactionType = {
+	amount: number;
+	description?: string;
+	date: Date;
+	category: string | undefined;
+	type: string;
+};

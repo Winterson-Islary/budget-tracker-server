@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { authMiddleware } from "../utils/authMiddleware";
 import { and, eq } from "drizzle-orm";
 import {
@@ -8,7 +8,7 @@ import {
 	yearHistory as yearHistoryTable,
 } from "../db/schemas/schema";
 import { db } from "../db/db";
-import { CreateTransactionSchema } from "../utils/types";
+import { type TransactionType, CreateTransactionSchema } from "../utils/types";
 
 export const transactions = new Hono()
 	.post("/", authMiddleware, async (ctx) => {
@@ -20,6 +20,24 @@ export const transactions = new Hono()
 		//! complete implementing transaction
 		const { amount, category, date, description, type } = ctx.req.query();
 
+		const requestObject: TransactionType = {
+			amount: Number(amount),
+			category: category,
+			date: new Date(date),
+			description,
+			type,
+		};
+
+		const validatedRequestQuery =
+			CreateTransactionSchema.safeParse(requestObject);
+		if (!validatedRequestQuery.success) {
+			return ctx.json(
+				{ error: "could not parse transaction request body" },
+				400,
+			);
+		}
+		// const { amount, category, date, description, type } =
+		// validatedRequestQuery.data;
 		const categoryRow = await db.query.category.findFirst({
 			where: and(
 				eq(categoryTable.userId, userID),
@@ -30,12 +48,12 @@ export const transactions = new Hono()
 			return ctx.json({ error: "category not found" }, 400);
 		}
 		await db.transaction(async (tx) => {
-			await tx.insert(transactionTable).values({
+			await tx.update(transactionTable).set({
 				userId: userID,
-				amount,
-				date,
+				amount: validatedRequestQuery.data.amount,
+				date: date,
 				description: description || "",
-				type,
+				type: type,
 				category: categoryRow.name,
 				categoryIcon: categoryRow.icon,
 			});
@@ -45,7 +63,7 @@ export const transactions = new Hono()
 				.onConflictDoUpdate({
 					setWhere: and(
 						eq(monthHistoryTable.userId, userID),
-						eq(day, date.getUTCDate()),
+						eq(monthHistoryTable.day, date.getUTCDate()),
 					),
 				});
 		});
